@@ -1,20 +1,21 @@
 package server
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+
+	"remoteMediaControl/internal/services"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := mux.NewRouter()
 
-	// Apply CORS middleware
+	//TODO: Check if we need CORS if the same origin
 	r.Use(s.corsMiddleware)
-
-	r.HandleFunc("/", s.HelloWorldHandler)
+	r.HandleFunc("/ws", s.wsHandler)
 
 	return r
 }
@@ -38,14 +39,40 @@ func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	// Allow all origins (for dev only!)
+	CheckOrigin: func(r *http.Request) bool { return true },
+}
 
-	jsonResp, err := json.Marshal(resp)
+func (s *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
+	// Upgrade the HTTP connection to a WebSocket
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Fatalf("error handling JSON marshal. Err: %v", err)
+		log.Println("Upgrade error:", err)
+		return
 	}
+	defer conn.Close()
 
-	_, _ = w.Write(jsonResp)
+	log.Println("Client connected")
+
+	for {
+		messageType, message, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("Read error:", err)
+			break
+		}
+
+		if err := services.HandleWebSocketMessage(messageType, message); err != nil {
+			log.Println("Handle error:", err)
+			break
+		}
+
+		log.Printf("Received: %s", message)
+		if err := conn.WriteMessage(2, []byte("Message received")); err != nil {
+			log.Println("Write error:", err)
+			break
+		}
+	}
 }
