@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,10 +16,17 @@ type Server struct {
 }
 
 func NewServer() *http.Server {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		port = 8080
+	}
 	NewServer := &Server{
 		port: port,
 	}
+
+	conn, _ := net.Dial("udp", "8.8.8.8:80")
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	fmt.Printf("Running on: %s:%d\n", localAddr.IP.String(), port)
 
 	// Declare Server config
 	server := &http.Server{
