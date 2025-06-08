@@ -1,39 +1,25 @@
 # Project remoteMediaControl
 
-One Paragraph of project description goes here
+Remote Media controler, a simple app that extends your media keyboard buttons to mobile devices.
+It exposes a simple js page with 3 buttons prev, play/pause, next. Then broadcasts the command as a keyboard button.
+When run, shows you local IP and port (dependant on port env variable, default is 8080).
+You should be available to see the app in your local area network devices (like other WiFi devices).
+
+Should work on both Linux and Windows
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-## MakeFile
-
-Run build make command with tests
+Clone the repository and run depending on your OS.
 ```bash
-make all
+make run-lin
+```
+or
+```bash
+make run-win
 ```
 
-Build the application
-```bash
-make build
-```
+This should build and run the app.
 
-Run the application
-```bash
-make run
-```
+## Requirements
 
-Live reload the application:
-```bash
-make watch
-```
-
-Run the test suite:
-```bash
-make test
-```
-
-Clean up binary from the last build:
-```bash
-make clean
-```
+To build the Go 1.24 is required.
