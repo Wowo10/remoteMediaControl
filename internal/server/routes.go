@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -15,6 +16,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	//TODO: Check if we need CORS if the same origin
 	r.Use(s.corsMiddleware)
+
+	fs := http.FileServer(http.Dir("client/static"))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
+
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		http.ServeFile(w, r, "client/index.html")
+	})
 	r.HandleFunc("/ws", s.wsHandler)
 
 	return r
@@ -64,13 +73,14 @@ func (s *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		if err := services.HandleWebSocketMessage(messageType, message); err != nil {
+		var command services.Command
+		if command, err = services.HandleWebSocketMessage(messageType, message); err != nil {
 			log.Println("Handle error:", err)
 			break
 		}
 
-		log.Printf("Received: %s", message)
-		if err := conn.WriteMessage(2, []byte("Message received")); err != nil {
+		log.Printf("Received: %s", command)
+		if err := conn.WriteMessage(1, []byte(fmt.Sprintf("Command %s received", command))); err != nil {
 			log.Println("Write error:", err)
 			break
 		}

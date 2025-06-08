@@ -1,0 +1,17 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+    margin-top: 50px;
+}
+
+button {
+    margin: 10px;
+    padding: 2em 3em;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 50px;
+    font-size: 2rem;
+}
