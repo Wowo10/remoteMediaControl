@@ -45,6 +45,22 @@ func SendPrevious() error {
 	return nil
 }
 
+func SendVolUp() error {
+	device.KeyDown(uinput.KeyVolumeup)
+	time.Sleep(50 * time.Millisecond)
+	device.KeyUp(uinput.KeyVolumeup)
+
+	return nil
+}
+
+func SendVolDown() error {
+	device.KeyDown(uinput.KeyVolumedown)
+	time.Sleep(50 * time.Millisecond)
+	device.KeyUp(uinput.KeyVolumedown)
+
+	return nil
+}
+
 func Dispose() {
 	device.Close()
 }

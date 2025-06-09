@@ -6,12 +6,10 @@ socket.addEventListener("open", () => {
     log("Connected to server")
 });
 
-// Handle messages from server
 socket.addEventListener("message", (event) => {
     log(event.data)
 });
 
-// Send something manually (e.g., a code) later
 function sendCode(code) {
     if (socket.readyState === WebSocket.OPEN) {
         try {
@@ -36,3 +34,5 @@ function log(message) {
 document.getElementById('playpause').onclick = () => sendCode(100);
 document.getElementById('next').onclick = () => sendCode(101);
 document.getElementById('prev').onclick = () => sendCode(102);
+document.getElementById('vol-up').onclick = () => sendCode(103);
+document.getElementById('vol-down').onclick = () => sendCode(104);

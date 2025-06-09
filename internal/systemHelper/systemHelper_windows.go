@@ -36,6 +36,16 @@ func SendPrevious() error {
 	return device.Launching()
 }
 
+func SendVolUp() error {
+	device.SetKeys(keybd_event.VK_VOLUME_UP)
+	return device.Launching()
+}
+
+func SendVolDown() error {
+	device.SetKeys(keybd_event.VK_VOLUME_DOWN)
+	return device.Launching()
+}
+
 func Dispose() {
 	// do nothing
 }

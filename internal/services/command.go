@@ -12,6 +12,8 @@ const (
 	PlayPause Command = 100
 	Next      Command = 101
 	Previous  Command = 102
+	VolUp     Command = 103
+	VolDown   Command = 104
 )
 
 func (c Command) String() string {
@@ -22,6 +24,10 @@ func (c Command) String() string {
 		return "Next"
 	case Previous:
 		return "Prev"
+	case VolUp:
+		return "Vol+"
+	case VolDown:
+		return "Vol-"
 	default:
 		return "Unknown"
 	}
@@ -44,6 +50,10 @@ func HandleWebSocketMessage(messageType int, message []byte) (Command, error) {
 		return Next, systemHelper.SendNext()
 	case Previous:
 		return Previous, systemHelper.SendPrevious()
+	case VolUp:
+		return VolUp, systemHelper.SendVolUp()
+	case VolDown:
+		return VolDown, systemHelper.SendVolDown()
 	}
 
 	return 0, fmt.Errorf("Invalid message code: %s", string(message))
