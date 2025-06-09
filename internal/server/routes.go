@@ -55,6 +55,8 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
+var clientCounter = 1
+
 func (s *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -64,24 +66,30 @@ func (s *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	log.Println("Client connected")
+	clientId := clientCounter
+	clientCounter++
+
+	log.Printf("Client %d connected\n", clientId)
 
 	for {
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("Read error:", err)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
+				log.Printf("Unexpected close error: %v", err)
+			} else {
+				log.Printf("Connection %d closed", clientId)
+			}
 			break
 		}
 
 		var command services.Command
 		if command, err = services.HandleWebSocketMessage(messageType, message); err != nil {
-			log.Println("Handle error:", err)
-			break
+			log.Println("Handle error:", err, "from", clientId)
 		}
 
-		log.Printf("Received: %s", command)
+		log.Printf("Received: %s from %d", command, clientId)
 		if err := conn.WriteMessage(1, []byte(fmt.Sprintf("Command %s received", command))); err != nil {
-			log.Println("Write error:", err)
+			log.Println("Write error:", err, "to", clientId)
 			break
 		}
 	}
