@@ -55,8 +55,6 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-var clientCounter = 1
-
 func (s *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -64,10 +62,15 @@ func (s *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Upgrade error:", err)
 		return
 	}
-	defer conn.Close()
 
-	clientId := clientCounter
-	clientCounter++
+	clientId := s.clientCounter
+	s.clientCounter++
+
+	s.connections.Store(conn, true)
+	defer func() {
+		s.connections.Delete(conn)
+		conn.Close()
+	}()
 
 	log.Printf("Client %d connected\n", clientId)
 

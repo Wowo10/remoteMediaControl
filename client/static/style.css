@@ -22,3 +22,8 @@ body {
     margin-top: 50px;
     font-size: 2rem;
 }
+
+.disabled {
+    background-color: rgb(255, 127, 127);
+    cursor: not-allowed !important;
+}
