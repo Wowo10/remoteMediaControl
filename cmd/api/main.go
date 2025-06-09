@@ -10,12 +10,14 @@ import (
 	"time"
 
 	"remoteMediaControl/internal/server"
+	"remoteMediaControl/internal/systemHelper"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+	defer systemHelper.Dispose()
 
 	// Listen for the interrupt signal.
 	<-ctx.Done()
@@ -38,7 +40,6 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 }
 
 func main() {
-
 	server := server.NewServer()
 
 	// Create a done channel to signal when the shutdown is complete

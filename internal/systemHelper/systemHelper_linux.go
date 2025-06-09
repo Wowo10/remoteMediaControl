@@ -4,49 +4,47 @@
 package systemHelper
 
 import (
+	"log"
 	"time"
 
 	"gopkg.in/bendahl/uinput.v1"
 )
 
-func SendPlayPause() error {
+var device uinput.Keyboard
+
+func init() {
 	keyboard, err := uinput.CreateKeyboard("/dev/uinput", []byte("virtual-media-keyboard"))
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	defer keyboard.Close()
 
-	keyboard.KeyUp(uinput.KeyPlaypause)
+	device = keyboard
+}
+
+func SendPlayPause() error {
+	device.KeyDown(uinput.KeyPlaypause)
 	time.Sleep(50 * time.Millisecond)
-	keyboard.KeyDown(uinput.KeyPlaypause)
+	device.KeyUp(uinput.KeyPlaypause)
 
 	return nil
 }
 
 func SendNext() error {
-	keyboard, err := uinput.CreateKeyboard("/dev/uinput", []byte("virtual-media-keyboard"))
-	if err != nil {
-		return err
-	}
-	defer keyboard.Close()
-
-	keyboard.KeyUp(uinput.KeyNextsong)
+	device.KeyDown(uinput.KeyNextsong)
 	time.Sleep(50 * time.Millisecond)
-	keyboard.KeyDown(uinput.KeyNextsong)
+	device.KeyUp(uinput.KeyNextsong)
 
 	return nil
 }
 
 func SendPrevious() error {
-	keyboard, err := uinput.CreateKeyboard("/dev/uinput", []byte("virtual-media-keyboard"))
-	if err != nil {
-		return err
-	}
-	defer keyboard.Close()
-
-	keyboard.KeyUp(uinput.KeyPrevioussong)
+	device.KeyDown(uinput.KeyPrevioussong)
 	time.Sleep(50 * time.Millisecond)
-	keyboard.KeyDown(uinput.KeyPrevioussong)
+	device.KeyUp(uinput.KeyPrevioussong)
 
 	return nil
+}
+
+func Dispose() {
+	device.Close()
 }
